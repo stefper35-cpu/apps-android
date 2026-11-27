@@ -1,0 +1,38 @@
+name: Build APK
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [facturepro, repondavis]
+    defaults:
+      run:
+        working-directory: ${{ matrix.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Installer les dépendances
+        run: |
+          npm install
+          npx expo install --fix
+      - name: Générer le projet Android
+        run: npx expo prebuild --platform android --no-install
+      - name: Compiler l'APK
+        working-directory: ${{ matrix.app }}/android
+        run: ./gradlew assembleRelease --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-apk
+          path: ${{ matrix.app }}/android/app/build/outputs/apk/release/*.apk

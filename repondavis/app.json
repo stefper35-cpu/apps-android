@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "RépondAvis",
+    "slug": "repondavis",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": { "supportsTablet": false, "bundleIdentifier": "com.tonnom.repondavis" },
+    "android": { "package": "com.tonnom.repondavis" }
+  }
+}

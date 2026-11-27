@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "FacturePro",
+    "slug": "facturepro",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": { "supportsTablet": false, "bundleIdentifier": "com.tonnom.facturepro" },
+    "android": { "package": "com.tonnom.facturepro" }
+  }
+}
