@@ -1,0 +1,43 @@
+name: Release FacturePro (AAB pour Google Play)
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: facturepro
+    env:
+      KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - name: Dépendances
+        run: |
+          npm install
+          npx expo install --fix
+      - name: Générer le projet Android
+        run: npx expo prebuild --platform android --no-install
+      - name: Signature de release (si la clé est fournie)
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+            echo "KEYSTORE_PATH=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+            python3 ../scripts/patch-signing.py android/app/build.gradle
+          else
+            echo "::warning::Pas de clé de signature : l'AAB sera signé avec la clé de debug et ne pourra PAS être envoyé sur Google Play."
+          fi
+      - name: Compiler l'AAB
+        working-directory: facturepro/android
+        run: ./gradlew bundleRelease --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: facturepro-aab
+          path: facturepro/android/app/build/outputs/bundle/release/*.aab

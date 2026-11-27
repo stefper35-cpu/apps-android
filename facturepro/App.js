@@ -7,7 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FREE_LIMIT, isPro, startSubscription } from './purchases';
+import { FREE_LIMIT, isPro, startSubscription, restorePurchases, initPurchases } from './purchases';
 
 const GREEN = '#0f7a5c';
 const TVA_OPTIONS = [
@@ -39,6 +39,7 @@ export default function App() {
 
   // Chargement du profil émetteur et du quota
   useEffect(() => {
+    initPurchases();
     (async () => {
       try {
         const m = await AsyncStorage.getItem('fp-me');
@@ -197,7 +198,8 @@ export default function App() {
           <View style={s.modal}>
             <Text style={s.h2}>Limite gratuite atteinte</Text>
             <Text style={{ marginBottom: 16 }}>Vous avez créé vos {FREE_LIMIT} documents gratuits ce mois-ci. Passez en Pro pour un usage illimité, sans mention FacturePro.</Text>
-            <TouchableOpacity style={s.btn} onPress={startSubscription}><Text style={s.btnTxt}>Passer en Pro – 5 €/mois</Text></TouchableOpacity>
+            <TouchableOpacity style={s.btn} onPress={async () => { if (await startSubscription()) setShowPaywall(false); }}><Text style={s.btnTxt}>Passer en Pro – 5 €/mois</Text></TouchableOpacity>
+            <TouchableOpacity style={[s.ghost, { marginTop: 10 }]} onPress={async () => { if (await restorePurchases()) setShowPaywall(false); else Alert.alert('Aucun abonnement', "Aucun abonnement actif n'a été trouvé."); }}><Text style={s.ghostTxt}>Restaurer mon achat</Text></TouchableOpacity>
             <TouchableOpacity style={[s.ghost, { marginTop: 10 }]} onPress={() => setShowPaywall(false)}><Text style={s.ghostTxt}>Fermer</Text></TouchableOpacity>
           </View>
         </View>

@@ -5,7 +5,15 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "ios": { "supportsTablet": false, "bundleIdentifier": "com.tonnom.facturepro" },
-    "android": { "package": "com.tonnom.facturepro" }
+    "icon": "./assets/icon.png",
+    "android": {
+      "package": "com.stefper35.facturepro",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0F7A5C"
+      }
+    },
+    "ios": { "supportsTablet": false, "bundleIdentifier": "com.stefper35.facturepro" }
   }
 }
