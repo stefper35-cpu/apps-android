@@ -28,8 +28,12 @@ jobs:
       - name: Signature de release (si la clé est fournie)
         run: |
           if [ -n "$KEYSTORE_B64" ]; then
-            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+            echo "$KEYSTORE_B64" | tr -d "[:space:]" | base64 -d > "$RUNNER_TEMP/release.keystore"
             echo "KEYSTORE_PATH=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+            # Nettoie les espaces / retours à la ligne ajoutés par erreur lors de la copie des secrets
+            echo "SIGN_STORE_PASSWORD=$(printf %s "$KEYSTORE_PASSWORD" | tr -d '[:space:]')" >> "$GITHUB_ENV"
+            echo "SIGN_KEY_ALIAS=$(printf %s "$KEY_ALIAS" | tr -d '[:space:]')" >> "$GITHUB_ENV"
+            echo "SIGN_KEY_PASSWORD=$(printf %s "$KEY_PASSWORD" | tr -d '[:space:]')" >> "$GITHUB_ENV"
             python3 ../scripts/patch-signing.py android/app/build.gradle
           else
             echo "::warning::Pas de clé de signature : l'AAB sera signé avec la clé de debug et ne pourra PAS être envoyé sur Google Play."
